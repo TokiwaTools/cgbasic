@@ -1,4 +1,4 @@
-class CameraMatrix {
+class CameraMatrix implements Cloneable {
   float dx, dy, dz;
   float argX, argY, argZ;
 
@@ -45,5 +45,15 @@ class CameraMatrix {
 
   float getArgZ() {
     return argZ;
+  }
+
+  @Override
+  CameraMatrix clone() {
+    try {
+      return (CameraMatrix)super.clone();
+    } catch(Exception e) {
+      e.printStackTrace();
+    }
+    return null;
   }
 }

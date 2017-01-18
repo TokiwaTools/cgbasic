@@ -1,123 +1,69 @@
 import saito.objloader.*;
 
-int windowState = 0;
+int windowState;
 File file;
 OBJModel model;
-boolean dragging = false;
-boolean moving = false;
+
+boolean dragging;
+boolean moving;
+int recoding;
+int playing;
+
 CameraMatrix currentMatrix;
+ArrayList <CameraMatrix> footprintMatrix;
+int footprintFrameCount;
 
-void selectFile(File _file) {
-  if (_file == null) {
-    exit();
-  } else {
-    windowState = 1;
-    file = _file;
-    thread("loadOBJ");
-  }
-}
+int popupCount;
 
-void loadOBJ() {
-  model = new OBJModel(this, file.getAbsolutePath(), "relative", QUADS);
-  model.scale(8);
-  model.translateToCenter();
-  windowState = 2;
+void initialize() {
+  windowState = 0;
+  dragging = false;
+  moving = false;
+  recoding = -1;
+  playing = -1;
+  footprintFrameCount = 0;
+  popupCount = 0;
+  currentMatrix = new CameraMatrix(width*13.0/24.0, height*7.0/10.0, 0, -PI/10, -PI/3, 0);
+  footprintMatrix = new ArrayList <CameraMatrix> ();
+  selectInput("Select .obj file", "selectFile");
 }
 
 void setup() {
   size(1280, 720, OPENGL);
-  currentMatrix = new CameraMatrix(width*13.0/24.0, height*7.0/10.0, 0, -PI/10, -PI/3, 0);
-  selectInput("Select .obj file", "selectFile");
+  initialize();
 }
 
 void draw() {
-  background(220);
+  if (playing == 2) {
+    currentMatrix = footprintMatrix.get(footprintFrameCount);
+    footprintFrameCount++;
+    if (footprintFrameCount >= footprintMatrix.size()-1) {
+      footprintFrameCount = 0;
+    }
+  }
+
   switch (windowState) {
     case 0 :
       ortho();
+      background(220);
       drawMessage("Select a model");
     break;
     case 1 :
       ortho();
+      background(220);
       drawMessage("LOADING...");
     break;
     case 2 :
-      ortho();
-      drawFPS();
       perspective();
+      background(220);
       drawLight();
       drawModel();
+      ortho();
+      drawFPS();
+      drawPopupMessages();
+      if (recoding == 2) {
+        footprintMatrix.add( currentMatrix.clone() );
+      }
     break;
   }
-}
-
-void drawMessage(String message) {
-  fill(70);
-  textAlign(CENTER, CENTER);
-  textSize(30);
-  text(message, width/2, height/2);
-}
-
-void drawFPS() {
-  fill(100);
-  textAlign(RIGHT, TOP);
-  textSize(18);
-  String [] frame = split(str(frameRate), '.');
-  text(frame[0] + "." + frame[1].substring(0, 2) + " fps", width-10, 10);
-}
-
-void drawLight() {
-  pushMatrix();
-
-  translate(width/2, height/2, 0);
-  rotateX(radians(-30));
-  lights();
-
-  popMatrix();
-}
-
-void drawModel() {
-  pushMatrix();
-
-  if (moving) {
-    currentMatrix.addPosition( mouseX-pmouseX, mouseY-pmouseY, 0 );
-  }
-  translate( currentMatrix.getDx(), currentMatrix.getDy(), currentMatrix.getDz() );
-  if (dragging) {
-    currentMatrix.addArgument( -radians((mouseY-pmouseY)/6.0), radians((mouseX-pmouseX)/6.0), 0 );
-  }
-  rotateX( currentMatrix.getArgX() );
-  rotateY( currentMatrix.getArgY() );
-
-  noStroke();
-  model.draw();
-
-  popMatrix();
-}
-
-void mousePressed() {
-  switch (mouseButton) {
-    case LEFT :
-      moving = true;
-    break;
-    case RIGHT :
-      dragging = true;
-    break;
-  }
-}
-
-void mouseReleased() {
-  switch (mouseButton) {
-    case LEFT :
-      moving = false;
-    break;
-    case RIGHT :
-      dragging = false;
-    break;
-  }
-}
-
-void mouseWheel(MouseEvent e){
-  float amount = e.getAmount();
-  currentMatrix.addPosition(0, 0, -amount*20);
 }
