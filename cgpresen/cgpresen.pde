@@ -5,8 +5,7 @@ File file;
 OBJModel model;
 boolean dragging = false;
 boolean moving = false;
-float moveDx, moveDy, moveDz;
-float rotateDx, rotateDy;
+CameraMatrix currentMatrix;
 
 void selectFile(File _file) {
   if (_file == null) {
@@ -26,13 +25,8 @@ void loadOBJ() {
 }
 
 void setup() {
-  size(1920, 1080, P3D);
-  frameRate(30);
-  moveDx = width*13/24.0;
-  moveDy = height*7.0/10.0;
-  moveDz = 0;
-  rotateDx = -PI/10;
-  rotateDy = -PI/3;
+  size(1280, 720, OPENGL);
+  currentMatrix = new CameraMatrix(width*13.0/24.0, height*7.0/10.0, 0, -PI/10, -PI/3, 0);
   selectInput("Select .obj file", "selectFile");
 }
 
@@ -86,16 +80,14 @@ void drawModel() {
   pushMatrix();
 
   if (moving) {
-    moveDx += mouseX-pmouseX;
-    moveDy += mouseY-pmouseY;
+    currentMatrix.addPosition( mouseX-pmouseX, mouseY-pmouseY, 0 );
   }
-  translate(moveDx, moveDy, moveDz);
+  translate( currentMatrix.getDx(), currentMatrix.getDy(), currentMatrix.getDz() );
   if (dragging) {
-    rotateDx -= radians( (mouseY-pmouseY)/6.0 );
-    rotateDy += radians( (mouseX-pmouseX)/6.0 );
+    currentMatrix.addArgument( -radians((mouseY-pmouseY)/6.0), radians((mouseX-pmouseX)/6.0), 0 );
   }
-  rotateX(rotateDx);
-  rotateY(rotateDy);
+  rotateX( currentMatrix.getArgX() );
+  rotateY( currentMatrix.getArgY() );
 
   noStroke();
   model.draw();
@@ -127,5 +119,5 @@ void mouseReleased() {
 
 void mouseWheel(MouseEvent e){
   float amount = e.getAmount();
-  moveDz -= amount*20;
+  currentMatrix.addPosition(0, 0, -amount*20);
 }

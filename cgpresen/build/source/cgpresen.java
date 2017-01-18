@@ -23,8 +23,7 @@ File file;
 OBJModel model;
 boolean dragging = false;
 boolean moving = false;
-float moveDx, moveDy, moveDz;
-float rotateDx, rotateDy;
+CameraMatrix currentMatrix;
 
 public void selectFile(File _file) {
   if (_file == null) {
@@ -44,13 +43,8 @@ public void loadOBJ() {
 }
 
 public void setup() {
-  size(1920, 1080, P3D);
-  frameRate(30);
-  moveDx = width*13/24.0f;
-  moveDy = height*7.0f/10.0f;
-  moveDz = 0;
-  rotateDx = -PI/10;
-  rotateDy = -PI/3;
+  size(1280, 1080, OPENGL);
+  currentMatrix = new CameraMatrix(width*13.0f/24.0f, height*7.0f/10.0f, 0, -PI/10, -PI/3, 0);
   selectInput("Select .obj file", "selectFile");
 }
 
@@ -104,16 +98,14 @@ public void drawModel() {
   pushMatrix();
 
   if (moving) {
-    moveDx += mouseX-pmouseX;
-    moveDy += mouseY-pmouseY;
+    currentMatrix.addPosition( mouseX-pmouseX, mouseY-pmouseY, 0 );
   }
-  translate(moveDx, moveDy, moveDz);
+  translate( currentMatrix.getDx(), currentMatrix.getDy(), currentMatrix.getDz() );
   if (dragging) {
-    rotateDx -= radians( (mouseY-pmouseY)/6.0f );
-    rotateDy += radians( (mouseX-pmouseX)/6.0f );
+    currentMatrix.addArgument( -radians((mouseY-pmouseY)/6.0f), radians((mouseX-pmouseX)/6.0f), 0 );
   }
-  rotateX(rotateDx);
-  rotateY(rotateDy);
+  rotateX( currentMatrix.getArgX() );
+  rotateY( currentMatrix.getArgY() );
 
   noStroke();
   model.draw();
@@ -145,10 +137,59 @@ public void mouseReleased() {
 
 public void mouseWheel(MouseEvent e){
   float amount = e.getAmount();
-  moveDz -= amount*20;
+  currentMatrix.addPosition(0, 0, -amount*20);
+}
+class CameraMatrix {
+  float dx, dy, dz;
+  float argX, argY, argZ;
+
+  CameraMatrix(float _dx, float _dy, float _dz, float _argX, float _argY, float _argZ) {
+    dx = _dx;
+    dy = _dy;
+    dz = _dz;
+    argX = _argX;
+    argY = _argY;
+    argZ = _argZ;
+  }
+
+  public void addPosition(float _dx, float _dy, float _dz) {
+    dx += _dx;
+    dy += _dy;
+    dz += _dz;
+  }
+
+  public void addArgument(float _argX, float _argY, float _argZ) {
+    argX += _argX;
+    argY += _argY;
+    argZ += _argZ;
+  }
+
+  public float getDx() {
+    return dx;
+  }
+
+  public float getDy() {
+    return dy;
+  }
+
+  public float getDz() {
+    return dz;
+  }
+
+  public float getArgX() {
+    return argX;
+  }
+
+  public float getArgY() {
+    return argY;
+  }
+
+  public float getArgZ() {
+    return argZ;
+  }
 }
   static public void main(String[] passedArgs) {
-    String[] appletArgs = new String[] { "cgpresen" };
+    String[] appletArgs = new String[] { "--full-screen", "--bgcolor=#666666", "--stop-color=#cccccc", "cgpresen" };
     if (passedArgs != null) {
       PApplet.main(concat(appletArgs, passedArgs));
     } else {
