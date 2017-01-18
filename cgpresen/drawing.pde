@@ -90,7 +90,7 @@ void drawPopupMessages() {
 void drawLogo() {
   pushMatrix();
   translate(width/2, height/4.0);
-  scale(0.6);
+  scale(1.0);
   imageMode(CENTER);
   image(logo, 0, 0);
   imageMode(CORNER);

@@ -26,7 +26,7 @@ void loadOBJ() {
   model.setDrawMode(QUADS);
   model.setTexturePathMode("relative");
   model.load( file.getAbsolutePath() );
-  model.scale(8);
+  model.scale(12);
   model.translateToCenter();
   windowState = 2;
 }
