@@ -54,7 +54,7 @@ void turnPlaying() {
     playing = 2;
     popupCount = 0;
     println("[Footprint] Play");
-  } else {
+  } else if (playing == 2) {
     playing = 0;
     popupCount = 0;
     footprintFrameCount = 0;

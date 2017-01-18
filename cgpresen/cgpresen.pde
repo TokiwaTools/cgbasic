@@ -3,6 +3,7 @@ import saito.objloader.*;
 int windowState;
 File file;
 OBJModel model;
+PImage logo;
 
 boolean dragging;
 boolean moving;
@@ -29,7 +30,7 @@ void initialize() {
 }
 
 void setup() {
-  size(1280, 720, OPENGL);
+  size(displayWidth, displayHeight, OPENGL);
   initialize();
 }
 
@@ -43,6 +44,12 @@ void draw() {
   }
 
   switch (windowState) {
+    case -1 :
+      ortho();
+      background(220);
+      drawMessage("JPY 3,000", 100);
+      drawLogo();
+    break;
     case 0 :
       ortho();
       background(220);

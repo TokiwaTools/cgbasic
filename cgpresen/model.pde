@@ -2,9 +2,21 @@ void selectFile(File _file) {
   if (_file == null) {
     exit();
   } else {
-    windowState = 1;
     file = _file;
-    thread("loadOBJ");
+
+    String filename = _file.getAbsolutePath();
+    String ext = "obj";
+    int point = filename.lastIndexOf(".");
+    if (point != -1) {
+      ext = filename.substring(point+1);
+    }
+    if (ext.equals("obj")) {
+      windowState = 1;
+      thread("loadOBJ");
+    } else if (ext.equals("png")) {
+      windowState = -1;
+      logo = loadImage(filename);
+    }
   }
 }
 

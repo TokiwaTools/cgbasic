@@ -1,7 +1,11 @@
 void drawMessage(String message) {
+  drawMessage(message, 50);
+}
+
+void drawMessage(String message, int textSize) {
   fill(70);
   textAlign(CENTER, CENTER);
-  textSize(30);
+  textSize(textSize);
   text(message, width/2, height/2);
 }
 
@@ -81,4 +85,14 @@ void drawPopupMessages() {
       drawPopup("Rec: Recoding");
       return;
   }
+}
+
+void drawLogo() {
+  pushMatrix();
+  translate(width/2, height/4.0);
+  scale(0.6);
+  imageMode(CENTER);
+  image(logo, 0, 0);
+  imageMode(CORNER);
+  popMatrix();
 }

@@ -21,6 +21,7 @@ public class cgpresen extends PApplet {
 int windowState;
 File file;
 OBJModel model;
+PImage logo;
 
 boolean dragging;
 boolean moving;
@@ -47,7 +48,7 @@ public void initialize() {
 }
 
 public void setup() {
-  size(1280, 720, OPENGL);
+  size(displayWidth, displayHeight, OPENGL);
   initialize();
 }
 
@@ -61,6 +62,12 @@ public void draw() {
   }
 
   switch (windowState) {
+    case -1 :
+      ortho();
+      background(220);
+      drawMessage("JPY 3,000", 60);
+      drawLogo();
+    break;
     case 0 :
       ortho();
       background(220);
@@ -254,9 +261,13 @@ public boolean pauseRecoding() {
   return false;
 }
 public void drawMessage(String message) {
+  drawMessage(message, 30);
+}
+
+public void drawMessage(String message, int textSize) {
   fill(70);
   textAlign(CENTER, CENTER);
-  textSize(30);
+  textSize(textSize);
   text(message, width/2, height/2);
 }
 
@@ -337,13 +348,35 @@ public void drawPopupMessages() {
       return;
   }
 }
+
+public void drawLogo() {
+  pushMatrix();
+  translate(width/2, height/4.0f);
+  scale(0.6f);
+  imageMode(CENTER);
+  image(logo, 0, 0);
+  imageMode(CORNER);
+  popMatrix();
+}
 public void selectFile(File _file) {
   if (_file == null) {
     exit();
   } else {
-    windowState = 1;
     file = _file;
-    thread("loadOBJ");
+
+    String filename = _file.getAbsolutePath();
+    String ext = "obj";
+    int point = filename.lastIndexOf(".");
+    if (point != -1) {
+      ext = filename.substring(point+1);
+    }
+    if (ext.equals("obj")) {
+      windowState = 1;
+      thread("loadOBJ");
+    } else if (ext.equals("png")) {
+      windowState = -1;
+      logo = loadImage(filename);
+    }
   }
 }
 
